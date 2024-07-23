@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta name="viewport" content="initial-scale=1, width=device-width">
+		<title> Restaurante </title>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+		
+		
+	</head>
+
+    <body>
+        <h1>Bem-vindo ao nosso restaurante!!!</h1>
+        
+        <h2>MENU</h2>
+        <div>
+            <div id="app">
+                <div v-for="item in itens" :key="item" >
+                    <button onclick="chamaFuncao(this)"> {{item}} </button>  
+    
+            </div>
+        </div>
+    
+        <div>
+            <table>
+                <textarea id="resultadoPesquisa" rows="6" cols="70">
+
+                </textarea>
+            </table>
+        </div>
+        
+        
+        <script>
+            function chamaFuncao(e)
+		    {
+                lista = []
+			    var item = e.innerHTML;
+                console.log(item)
+			    fetch ('/botao?codigo='+item)
+			    .then((response) => response.text())
+    		    .then((text) => {
+                    console.log(text)
+                    nome = text[2];
+                    
+                    this.lista.push(nome.toString());
+
+                    fetch('/produtos?lista='+lista)
+                    .then(response => response.json())
+                    .then(json => {
+                
+                    document.getElementById("resultadoPesquisa").value=''
+                    if(json == 0)
+                    {
+                        document.getElementById("resultadoPesquisa").value+="Desculpe não temos no momento."                    
+                        
+                    }
+                    for (var a=0;a< json.length;a++)
+                    {
+                        document.getElementById("resultadoPesquisa").value+=json[a][0] + " - "                    
+                        document.getElementById("resultadoPesquisa").value+=json[a][1] + " - "  
+                        document.getElementById("resultadoPesquisa").value+=json[a][2] + " - "  
+                        document.getElementById("resultadoPesquisa").value+="R$ "+ json[a][4] + "\n"
+                    }
+               })
+            });
+			
+		    }
+
+		    const { createApp } = Vue
+            createApp({
+		    data() {
+			    return {
+				    LISTAGEM:'VAZIO',
+                    itens:[]           
+			}
+		  },
+		  methods: {
+                       		
+		},
+		mounted: function() {
+            
+			this.item=[];
+            fetch("/pegaMenu")
+            .then(response => response.json())
+            .then(json => {
+                for (var a=0;a<json.length;a++)
+                {
+                    test = json[a];
+                    this.itens.push(test.toString());          
+                }
+              
+            });
+			console.log(this.itens)
+  		}
+		}).mount('#app')
+
+
+        </script>
+    </body>
+</html>
